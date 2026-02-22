@@ -1115,14 +1115,14 @@ public class SimpleChessEngine {
 
     @Data
     public static class Move {
-        int fromRow, fromCol;
-        int toRow, toCol;
-        int piece;
-        int captured;
-        char promotion;
-        boolean isEnPassant;
-        boolean isCastling;
-        String san;
+       public int fromRow, fromCol;
+       public int toRow, toCol;
+       public int piece;
+       public int captured;
+       public char promotion;
+       public boolean isEnPassant;
+       public boolean isCastling;
+       public String san;
 
         public Move(int fromRow, int fromCol, int toRow, int toCol, 
                     int piece, int captured, char promotion) {
