@@ -271,7 +271,8 @@ public class ChessEngineService {
                         .from(result.bestMove.fromUci().substring(0, 2))
                         .to(result.bestMove.fromUci().substring(2, 4))
                         .san(result.bestMove.san)
-                        .promotion(result.bestMove.promotion)
+                        .promotion(result.bestMove.promotion == '\0' ? null : 
+                         String.valueOf(result.bestMove.promotion))
                         .build())
                 .position(EngineMoveResponse.PositionInfo.builder()
                         .fen(newFen)
