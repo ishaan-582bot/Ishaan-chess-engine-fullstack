@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Chess Engine - Play against a powerful chess AI">
+    <title>Chess Engine - Play Chess Online</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Connection Status -->
+    <div id="connection-status" class="connection-status connecting">
+        <span class="status-indicator"></span>
+        <span class="status-text">Connecting to server...</span>
+        <button id="reconnect-btn" class="btn-small hidden">Reconnect</button>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay hidden">
+        <div class="spinner"></div>
+        <p>Loading...</p>
+    </div>
+
+    <!-- Error Toast -->
+    <div id="error-toast" class="toast hidden">
+        <span class="toast-icon">⚠</span>
+        <span id="error-message">An error occurred</span>
+        <button class="toast-close">×</button>
+    </div>
+
+    <!-- Main Container -->
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <h1 class="logo">
+                <span class="logo-icon">♔</span>
+                <span class="logo-text">Chess Engine</span>
+            </h1>
+            <nav class="header-nav">
+                <button id="settings-btn" class="btn-icon" title="Settings">
+                    <span>⚙️</span>
+                </button>
+                <button id="help-btn" class="btn-icon" title="Help">
+                    <span>❓</span>
+                </button>
+            </nav>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Left Panel: Game Info -->
+            <aside class="panel panel-left">
+                <!-- Evaluation Display -->
+                <div class="eval-panel">
+                    <div class="eval-bar-container">
+                        <div id="eval-bar" class="eval-bar" style="width: 50%;"></div>
+                    </div>
+                    <div class="eval-info">
+                        <span id="eval-score" class="eval-score">0.0</span>
+                        <span id="eval-assessment" class="eval-assessment">Equal position</span>
+                        <span id="eval-depth" class="eval-depth"></span>
+                    </div>
+                </div>
+
+                <!-- Captured Pieces -->
+                <div class="captured-pieces">
+                    <div class="captured-section">
+                        <span class="captured-label">White captured:</span>
+                        <span id="captured-by-white" class="captured-pieces-list"></span>
+                    </div>
+                    <div class="captured-section">
+                        <span class="captured-label">Black captured:</span>
+                        <span id="captured-by-black" class="captured-pieces-list"></span>
+                    </div>
+                </div>
+
+                <!-- Game Status -->
+                <div class="game-status-panel">
+                    <div id="game-status-display" class="game-status">
+                        <span class="status-label">Game in progress</span>
+                    </div>
+                </div>
+
+                <!-- Draw Info -->
+                <div class="draw-info">
+                    <div class="draw-counter">
+                        <span class="draw-label">50-move counter:</span>
+                        <span id="fifty-move-counter">0</span>
+                    </div>
+                    <div class="draw-counter">
+                        <span class="draw-label">Repetitions:</span>
+                        <span id="repetition-counter">1</span>
+                    </div>
+                </div>
+
+                <!-- Engine Status -->
+                <div id="engine-status" class="engine-status hidden">
+                    <div class="thinking-indicator">
+                        <span class="spinner-small"></span>
+                        <span>Engine thinking...</span>
+                    </div>
+                    <button id="cancel-engine-btn" class="btn-small">Cancel</button>
+                </div>
+
+                <!-- Hint Display -->
+                <div id="hint-display" class="hint-display hidden">
+                    <h4>Top Moves</h4>
+                    <div id="hint-moves"></div>
+                </div>
+            </aside>
+
+            <!-- Center: Chess Board -->
+            <section class="board-section">
+                <div class="board-container">
+                    <div id="arrow-overlay" class="arrow-overlay"></div>
+                    <div id="chessboard" class="chessboard"></div>
+                </div>
+            </section>
+
+            <!-- Right Panel: Controls & History -->
+            <aside class="panel panel-right">
+                <!-- Move History -->
+                <div class="move-history-container">
+                    <h3>Move History</h3>
+                    <div id="move-history" class="move-history"></div>
+                </div>
+
+                <!-- Game Controls -->
+                <div class="controls-panel">
+                    <h3>Controls</h3>
+                    <div class="control-buttons">
+                        <button id="new-game-btn" class="btn btn-primary">
+                            <span class="btn-icon">🎮</span> New Game
+                        </button>
+                        <button id="undo-btn" class="btn btn-secondary" disabled>
+                            <span class="btn-icon">↩️</span> Undo
+                        </button>
+                        <button id="flip-board-btn" class="btn btn-secondary">
+                            <span class="btn-icon">🔄</span> Flip Board
+                        </button>
+                        <button id="hint-btn" class="btn btn-secondary">
+                            <span class="btn-icon">💡</span> Hint
+                        </button>
+                        <button id="auto-engine-btn" class="btn btn-secondary toggle-on">
+                            <span class="btn-icon">🤖</span> Auto: ON
+                        </button>
+                    </div>
+                </div>
+
+                <!-- FEN Input -->
+                <div class="fen-panel">
+                    <h3>Load Position</h3>
+                    <div class="fen-input-group">
+                        <input 
+                            type="text" 
+                            id="fen-input" 
+                            class="fen-input" 
+                            placeholder="Enter FEN string..."
+                            value="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+                        >
+                        <button id="load-fen-btn" class="btn btn-secondary">Load</button>
+                    </div>
+                </div>
+
+                <!-- Game Actions -->
+                <div class="game-actions">
+                    <h3>Game Actions</h3>
+                    <div class="action-buttons">
+                        <button id="offer-draw-btn" class="btn btn-secondary">
+                            <span class="btn-icon">🤝</span> Offer Draw
+                        </button>
+                        <button id="resign-btn" class="btn btn-danger">
+                            <span class="btn-icon">🏳️</span> Resign
+                        </button>
+                        <button id="export-pgn-btn" class="btn btn-secondary">
+                            <span class="btn-icon">📄</span> Export PGN
+                        </button>
+                    </div>
+                </div>
+            </aside>
+        </main>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <p>Chess Engine v1.0 | Built with Spring Boot & Vanilla JS</p>
+        </footer>
+    </div>
+
+    <!-- Promotion Modal -->
+    <div id="promotion-modal" class="modal hidden">
+        <div class="modal-content promotion-modal-content">
+            <h3>Choose Promotion Piece</h3>
+            <p class="promotion-countdown">Auto-selecting Queen in <span id="promotion-countdown">3</span>s</p>
+            <div class="promotion-pieces">
+                <button class="promotion-piece" data-piece="q" title="Queen">♕</button>
+                <button class="promotion-piece" data-piece="r" title="Rook">♖</button>
+                <button class="promotion-piece" data-piece="b" title="Bishop">♗</button>
+                <button class="promotion-piece" data-piece="n" title="Knight">♘</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Settings</h3>
+                <button class="modal-close">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="setting-group">
+                    <label for="engine-depth">Engine Depth (1-10)</label>
+                    <input type="range" id="engine-depth" min="1" max="10" value="5">
+                    <span class="setting-value" id="depth-value">5</span>
+                </div>
+                <div class="setting-group">
+                    <label for="player-color">Player Color</label>
+                    <select id="player-color">
+                        <option value="white">White</option>
+                        <option value="black">Black</option>
+                    </select>
+                </div>
+                <div class="setting-group checkbox">
+                    <input type="checkbox" id="confirm-moves">
+                    <label for="confirm-moves">Confirm moves before executing</label>
+                </div>
+                <div class="setting-group checkbox">
+                    <input type="checkbox" id="sound-enabled" checked>
+                    <label for="sound-enabled">Enable sound effects</label>
+                </div>
+                <div class="setting-group checkbox">
+                    <input type="checkbox" id="show-coordinates" checked>
+                    <label for="show-coordinates">Show board coordinates</label>
+                </div>
+                <div class="setting-group checkbox">
+                    <input type="checkbox" id="coordinate-training">
+                    <label for="coordinate-training">Coordinate training mode</label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="save-settings-btn" class="btn btn-primary">Save Settings</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Help Modal -->
+    <div id="help-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>How to Play</h3>
+                <button class="modal-close">×</button>
+            </div>
+            <div class="modal-body">
+                <h4>Controls</h4>
+                <ul class="help-list">
+                    <li><strong>Drag and drop</strong> pieces to move</li>
+                    <li><strong>Click</strong> a piece, then click destination</li>
+                    <li><strong>New Game</strong> - Start a fresh game</li>
+                    <li><strong>Undo</strong> - Take back last move (Ctrl+Z)</li>
+                    <li><strong>Flip Board</strong> - Rotate the board 180°</li>
+                    <li><strong>Hint</strong> - Get engine's top move suggestion</li>
+                    <li><strong>Auto</strong> - Toggle automatic engine moves</li>
+                </ul>
+                <h4>Keyboard Shortcuts</h4>
+                <ul class="help-list">
+                    <li><strong>← →</strong> - Navigate move history</li>
+                    <li><strong>↑</strong> - Go to start of game</li>
+                    <li><strong>↓</strong> - Go to end of game</li>
+                    <li><strong>Space</strong> - Toggle auto-engine</li>
+                    <li><strong>Ctrl+Z</strong> - Undo last move</li>
+                </ul>
+                <h4>Draw Rules</h4>
+                <ul class="help-list">
+                    <li><strong>50-Move Rule:</strong> 50 moves without capture or pawn move</li>
+                    <li><strong>Threefold Repetition:</strong> Same position 3 times</li>
+                    <li><strong>Insufficient Material:</strong> King vs King, etc.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/AudioManager.js"></script>
+    <script src="js/ChessApiClient.js"></script>
+    <script src="js/GameState.js"></script>
+    <script src="js/ChessBoard.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
