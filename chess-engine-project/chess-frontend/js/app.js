@@ -14,8 +14,12 @@
 class ChessApp {
     constructor() {
         // API Configuration
-        this.apiBaseUrl = 'http://localhost:8080/api';
-        this.api = new ChessApiClient(this.apiBaseUrl);
+this.apiBaseUrl =
+    window.location.hostname === "localhost"
+        ? "http://localhost:8080/api"
+        : "https://ishaan-chess-engine-fullstack.onrender.com/api";
+
+this.api = new ChessApiClient(this.apiBaseUrl);
         
         // Game state
         this.gameState = new GameState();
