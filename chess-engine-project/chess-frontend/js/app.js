@@ -18,7 +18,7 @@ class ChessApp {
                            window.location.hostname === '127.0.0.1';
         this.apiBaseUrl = isLocalhost
             ? 'http://localhost:8080/api'
-            : 'https://ishaan-chess-engine-fullstack.onrender.com/api ';
+            : 'https://ishaan-chess-engine-fullstack.onrender.com/api';
         
         this.api = new ChessApiClient(this.apiBaseUrl);
         
