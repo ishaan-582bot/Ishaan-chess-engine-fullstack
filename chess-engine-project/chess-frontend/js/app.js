@@ -13,13 +13,14 @@
 
 class ChessApp {
     constructor() {
-        // API Configuration
-this.apiBaseUrl =
-    window.location.hostname === "localhost"
-        ? "http://localhost:8080/api"
-        : "https://ishaan-chess-engine-fullstack.onrender.com/api";
-
-this.api = new ChessApiClient(this.apiBaseUrl);
+        // API Configuration - Dynamic based on environment
+        const isLocalhost = window.location.hostname === 'localhost' || 
+                           window.location.hostname === '127.0.0.1';
+        this.apiBaseUrl = isLocalhost
+            ? 'http://localhost:8080/api'
+            : 'https://ishaan-chess-engine-fullstack.onrender.com/api';
+        
+        this.api = new ChessApiClient(this.apiBaseUrl);
         
         // Game state
         this.gameState = new GameState();
@@ -1006,110 +1007,4 @@ this.api = new ChessApiClient(this.apiBaseUrl);
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `chess-game-${new Date().toISOString().split('T')[0]}.pgn`;
-        a.click();
-        URL.revokeObjectURL(url);
-        
-        this.showToast('PGN exported!', 'success');
-    }
-
-    // ============================================================================
-    // HELP
-    // ============================================================================
-
-    openHelp() {
-        this.elements.helpModal.classList.remove('hidden');
-    }
-
-    // ============================================================================
-    // UTILITY METHODS
-    // ============================================================================
-
-    isPlayerTurn() {
-        return this.gameState.sideToMove === this.settings.playerColor;
-    }
-
-    isEngineTurn() {
-        return !this.isPlayerTurn();
-    }
-
-    isPlayerPiece(piece) {
-        const isWhitePiece = piece === piece.toUpperCase();
-        return (this.settings.playerColor === 'white' && isWhitePiece) ||
-               (this.settings.playerColor === 'black' && !isWhitePiece);
-    }
-
-    formatEval(score) {
-        if (score === null || score === undefined) return '0.0';
-        const cp = score / 100;
-        return (cp > 0 ? '+' : '') + cp.toFixed(1);
-    }
-
-    setAppState(state) {
-        this.appState = state;
-        
-        // Disable controls during thinking
-        const disable = state === 'thinking' || state === 'loading';
-        this.elements.newGameBtn.disabled = disable;
-        this.elements.undoBtn.disabled = disable || !this.gameState.canUndo();
-        this.elements.hintBtn.disabled = disable;
-    }
-
-    setLoading(loading) {
-        this.elements.loadingOverlay.classList.toggle('hidden', !loading);
-    }
-
-    // ============================================================================
-    // ERROR HANDLING
-    // ============================================================================
-
-    handleError(error) {
-        console.error('Error:', error);
-        
-        let message = 'An error occurred';
-        
-        if (error instanceof ApiError) {
-            message = error.getUserMessage();
-        } else if (error.message) {
-            message = error.message;
-        }
-        
-        this.showError(message);
-    }
-
-    showError(message) {
-        this.elements.errorMessage.textContent = message;
-        this.elements.errorToast.classList.remove('hidden');
-        
-        setTimeout(() => {
-            this.elements.errorToast.classList.add('hidden');
-        }, 5000);
-    }
-
-    showToast(message, type = 'info') {
-        // Simple toast implementation
-        const toast = document.createElement('div');
-        toast.className = `toast ${type}`;
-        toast.innerHTML = `
-            <span class="toast-icon">${type === 'success' ? '✓' : 'ℹ'}</span>
-            <span class="toast-message">${message}</span>
-        `;
-        document.body.appendChild(toast);
-        
-        setTimeout(() => {
-            toast.remove();
-        }, 3000);
-    }
-
-    setupErrorHandling() {
-        window.onerror = (msg, url, line, col, error) => {
-            console.error('Global error:', { msg, url, line, col, error });
-            return false;
-        };
-    }
-}
-
-// Initialize app when DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
-    window.chessApp = new ChessApp();
-});
+        a.download = `chess-game-${new Date().toISOString().split('T')[0]}.pn
