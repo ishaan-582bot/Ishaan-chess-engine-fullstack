@@ -6,7 +6,7 @@ A complete chess engine implementation with a Spring Boot REST API backend and a
 
 ```
 chess-engine-project/
-├── chess-api/              # Spring Boot Backend
+├── chess-api/               # Spring Boot Backend
 │   ├── pom.xml
 │   └── src/
 │       ├── main/
